@@ -1,79 +1,48 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 interface ApiKeySelectorProps {
-  onKeySelected: () => void;
+  onKeySelected: (key: string) => void;
 }
 
 const ApiKeySelector: React.FC<ApiKeySelectorProps> = ({ onKeySelected }) => {
-  const [checking, setChecking] = useState(true);
-  const [hasKey, setHasKey] = useState(false);
+  const [inputKey, setInputKey] = useState('');
 
-  const checkKey = async () => {
-    try {
-      if (window.aistudio && window.aistudio.hasSelectedApiKey) {
-        const selected = await window.aistudio.hasSelectedApiKey();
-        setHasKey(selected);
-        if (selected) {
-          onKeySelected();
-        }
-      } else {
-        // Fallback for dev environments without the wrapper
-        console.warn("window.aistudio not found");
-      }
-    } catch (e) {
-      console.error("Error checking API key:", e);
-    } finally {
-      setChecking(false);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (inputKey.trim()) {
+      onKeySelected(inputKey.trim());
     }
   };
-
-  useEffect(() => {
-    checkKey();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleSelectKey = async () => {
-    try {
-      if (window.aistudio && window.aistudio.openSelectKey) {
-        await window.aistudio.openSelectKey();
-        // Assume success after closing dialog as per guidelines
-        setHasKey(true);
-        onKeySelected();
-      }
-    } catch (e) {
-      console.error("Error selecting key:", e);
-    }
-  };
-
-  if (checking) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] text-neutral-400">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mb-4"></div>
-        <p>Checking API Access...</p>
-      </div>
-    );
-  }
-
-  if (hasKey) return null;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 text-center space-y-6 bg-neutral-800 rounded-xl shadow-2xl max-w-lg mx-auto mt-10 border border-neutral-700">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-white">APIキーが必要です</h2>
+        <h2 className="text-2xl font-bold text-white">APIキーを入力</h2>
         <p className="text-neutral-400">
-          高画質な画像生成モデル (Gemini 3 Pro) を使用するには、有料プロジェクトのAPIキーを選択する必要があります。
+          Gemini APIキーを入力して利用を開始してください。
         </p>
       </div>
       
-      <button
-        onClick={handleSelectKey}
-        className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-all transform hover:scale-105 shadow-lg"
-      >
-        APIキーを選択 / 連携
-      </button>
+      <form onSubmit={handleSubmit} className="w-full space-y-4">
+        <input
+            type="password"
+            value={inputKey}
+            onChange={(e) => setInputKey(e.target.value)}
+            placeholder="AIzaSy..."
+            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all"
+        />
+        <button
+            type="submit"
+            disabled={!inputKey}
+            className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+            開始する
+        </button>
+      </form>
 
-      <p className="text-xs text-neutral-500 max-w-xs">
-        詳しくは <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Billing Documentation</a> をご覧ください。
+      <p className="text-xs text-neutral-500">
+        APIキーは <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Google AI Studio</a> で取得できます。
+        <br/>キーはブラウザ内にのみ保存され、外部には送信されません（Gemini APIへの直接送信を除く）。
       </p>
     </div>
   );

@@ -7,7 +7,7 @@ import { TearingStyle } from './types';
 import { generateMousatsuImage } from './services/geminiService';
 
 const App: React.FC = () => {
-  const [hasApiKey, setHasApiKey] = useState(false);
+  const [apiKey, setApiKey] = useState<string | null>(null);
   const [baseImage, setBaseImage] = useState<string | null>(null);
   const [processedBaseImage, setProcessedBaseImage] = useState<string | null>(null);
   const [maskImage, setMaskImage] = useState<string | null>(null);
@@ -34,6 +34,10 @@ const App: React.FC = () => {
 
   // Generation Handler
   const handleGenerate = async () => {
+    if (!apiKey) {
+        setError("APIキーが設定されていません。");
+        return;
+    }
     // Use processedBaseImage to ensure dimensions match the mask
     if (!processedBaseImage) {
         setError("画像の処理が完了していません。少し待ってから再度お試しください。");
@@ -49,7 +53,7 @@ const App: React.FC = () => {
     setResultImage(null);
 
     try {
-      const result = await generateMousatsuImage(processedBaseImage, maskImage, selectedStyle);
+      const result = await generateMousatsuImage(apiKey, processedBaseImage, maskImage, selectedStyle);
       setResultImage(result);
     } catch (e: any) {
         let msg = "生成に失敗しました。";
@@ -68,7 +72,7 @@ const App: React.FC = () => {
     setError(null);
   };
 
-  if (!hasApiKey) {
+  if (!apiKey) {
     return (
       <div className="min-h-screen bg-neutral-900 flex flex-col items-center">
         <header className="w-full p-6 text-center">
@@ -77,7 +81,7 @@ const App: React.FC = () => {
           </h1>
           <p className="text-neutral-500 mt-2">Nano Banana Pro Powered</p>
         </header>
-        <ApiKeySelector onKeySelected={() => setHasApiKey(true)} />
+        <ApiKeySelector onKeySelected={(key) => setApiKey(key)} />
       </div>
     );
   }
@@ -85,13 +89,19 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-neutral-900 text-neutral-100 flex flex-col pb-20">
       {/* Header */}
-      <header className="p-6 text-center border-b border-neutral-800">
+      <header className="p-6 text-center border-b border-neutral-800 relative">
         <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600 tracking-tighter">
           妄撮 GEN AI
         </h1>
         <p className="text-neutral-500 text-sm mt-2 font-mono">
           Model: Gemini 3 Pro (Image Preview)
         </p>
+        <button 
+            onClick={() => setApiKey(null)}
+            className="absolute top-6 right-6 text-xs text-neutral-500 hover:text-white underline"
+        >
+            APIキーを変更
+        </button>
       </header>
 
       <main className="flex-grow container mx-auto px-4 py-8 flex flex-col items-center">

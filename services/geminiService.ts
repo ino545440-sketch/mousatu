@@ -54,13 +54,13 @@ const getPromptForStyle = (style: TearingStyle): string => {
 };
 
 export const generateMousatsuImage = async (
+  apiKey: string,
   baseImageBase64: string,
   maskImageBase64: string,
   style: TearingStyle
 ): Promise<string> => {
-  const apiKey = process.env.API_KEY;
   if (!apiKey) {
-    throw new Error("API Key not found. Please select a key first.");
+    throw new Error("API Key is missing.");
   }
 
   // Determine aspect ratio from the provided base image (which should be pre-cropped now)

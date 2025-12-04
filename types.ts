@@ -12,15 +12,3 @@ export interface GeneratedImageResult {
   loading: boolean;
   error: string | null;
 }
-
-// Augment window for AI Studio helpers
-declare global {
-  interface AIStudio {
-    hasSelectedApiKey: () => Promise<boolean>;
-    openSelectKey: () => Promise<void>;
-  }
-
-  interface Window {
-    aistudio?: AIStudio;
-  }
-}
