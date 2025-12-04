@@ -1,0 +1,5 @@
+{
+  "name": "Mousatsu Gen AI",
+  "description": "An interactive image editing tool using Gemini Nano Banana Pro to simulate torn clothing effects based on user-drawn masks.",
+  "requestFramePermissions": []
+}
